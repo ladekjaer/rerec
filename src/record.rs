@@ -1,4 +1,4 @@
-use crate::Reading;
+use crate::reading::Reading;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
