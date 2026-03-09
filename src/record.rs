@@ -3,20 +3,23 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 use uuid::Uuid;
+use crate::location::Location;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[cfg_attr(feature = "sqlx", derive(sqlx::FromRow))]
 pub struct Record {
     id: Uuid,
     timestamp: DateTime<Utc>,
+    location: Option<Location>,
     reading: Reading,
 }
 
 impl Record {
-    pub fn new(id: Uuid, timestamp: DateTime<Utc>, reading: Reading) -> Self {
+    pub fn new(id: Uuid, timestamp: DateTime<Utc>, location: Option<Location>,reading: Reading) -> Self {
         Self {
             id,
             timestamp,
+            location,
             reading,
         }
     }
@@ -53,6 +56,7 @@ mod tests {
         let _record = Record {
             id: Uuid::new_v4(),
             timestamp: Utc::now(),
+            location: None,
             reading: Reading::BME280(BME280::new(22.625, 101325.0, 35.0)),
         };
     }
@@ -63,7 +67,7 @@ mod tests {
         let timestamp = Utc::now();
         let reading = Reading::BME280(BME280::new(22.625, 101325.0, 35.0));
         let reading_copy = reading.clone();
-        let record = Record::new(id, timestamp, reading);
+        let record = Record::new(id, timestamp, None, reading);
         assert_eq!(record.id(), id);
         assert_eq!(record.timestamp(), timestamp);
         assert_eq!(record.reading(), &reading_copy);
@@ -74,7 +78,7 @@ mod tests {
         let id = Uuid::new_v4();
         let timestamp = Utc::now();
         let reading = Reading::BME280(BME280::new(22.625, 101325.0, 35.0));
-        let record = Record::new(id, timestamp, reading);
+        let record = Record::new(id, timestamp, None, reading);
         assert_eq!(record.id(), id);
     }
 
@@ -83,7 +87,7 @@ mod tests {
         let id = Uuid::new_v4();
         let timestamp = Utc::now();
         let reading = Reading::BME280(BME280::new(22.625, 101325.0, 35.0));
-        let record = Record::new(id, timestamp, reading);
+        let record = Record::new(id, timestamp, None, reading);
         assert_eq!(record.timestamp(), timestamp);
     }
 
@@ -93,7 +97,7 @@ mod tests {
         let timestamp = Utc::now();
         let reading = Reading::BME280(BME280::new(22.625, 101325.0, 35.0));
         let reading_copy = reading.clone();
-        let record = Record::new(id, timestamp, reading);
+        let record = Record::new(id, timestamp, None, reading);
         assert_eq!(record.reading(), &reading_copy);
     }
 
@@ -102,7 +106,7 @@ mod tests {
         let id = Uuid::new_v4();
         let timestamp = Utc::now();
         let reading = Reading::BME280(BME280::new(22.625, 101325.0, 35.0));
-        let record = Record::new(id, timestamp, reading);
+        let record = Record::new(id, timestamp, None, reading);
 
         let expected = format!(
             "[{}] BME280: 22.62 °C, 101325.00 Pa, 35.00% ({})",
@@ -110,5 +114,15 @@ mod tests {
         );
         let actual = format!("{}", record);
         assert_eq!(actual, expected);
+    }
+    
+    #[test]
+    fn test_get_reading() {
+        let id = Uuid::new_v4();
+        let timestamp = Utc::now();
+        let reading = Reading::BME280(BME280::new(22.625, 101325.0, 35.0));
+        let location = Location::new("some location".into());
+        let record = Record::new(id, timestamp, Some(location), reading);
+        assert_eq!(record.location.unwrap().value(), "some location");
     }
 }
