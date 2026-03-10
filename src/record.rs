@@ -32,6 +32,10 @@ impl Record {
         self.timestamp
     }
 
+    pub fn location(&self) -> &Location {
+        &self.location
+    }
+
     pub fn reading(&self) -> &Reading {
         &self.reading
     }
