@@ -5,7 +5,7 @@ use std::fmt::Display;
 use uuid::Uuid;
 use crate::location::Location;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "sqlx", derive(sqlx::FromRow))]
 pub struct Record {
     id: Uuid,
@@ -47,6 +47,12 @@ impl Display for Record {
         let timestamp = self.timestamp();
         let reading_display = format!("{}", self.reading);
         write!(f, "[{}] {} ({})", timestamp, reading_display, id)
+    }
+}
+
+impl PartialOrd for Record {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.timestamp().cmp(&other.timestamp()))
     }
 }
 
