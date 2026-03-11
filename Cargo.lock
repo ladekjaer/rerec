@@ -917,7 +917,7 @@ dependencies = [
 
 [[package]]
 name = "rerec"
-version = "0.0.7"
+version = "0.0.8"
 dependencies = [
  "chrono",
  "serde",
