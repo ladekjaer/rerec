@@ -2,7 +2,7 @@
 name = "rerec"
 description = "Readings and records from sensory instruments as used by Herodot and Percepter"
 repository = "https://github.com/ladekjaer/rerec"
-version = "0.0.6"
+version = "0.0.7"
 edition = "2024"
 license = "0BSD"
 keywords = ["IoT", "Raspberry_Pi", "DS18B20", "BME280", "weather"]
