@@ -3,6 +3,7 @@ use std::fmt;
 use std::fmt::{Display, Formatter};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "sqlx", derive(sqlx::FromRow))]
 pub struct DS18B20 {
     device_name: String,

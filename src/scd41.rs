@@ -2,6 +2,7 @@ use std::fmt::Display;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "sqlx", derive(sqlx::FromRow))]
 pub struct SCD41 {
     sensor_id: u64,

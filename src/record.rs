@@ -6,6 +6,7 @@ use uuid::Uuid;
 use crate::location::Location;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "sqlx", derive(sqlx::FromRow))]
 pub struct Record {
     id: Uuid,
