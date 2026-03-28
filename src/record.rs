@@ -148,5 +148,18 @@ mod tests {
         let location = Location::new("some location".into());
         let record = Record::new(id, timestamp, location, reading);
         assert_eq!(record.location.value(), "some location");
+        assert_eq!(record.location().clone(), Location::new("some location".into()));
+    }
+
+    #[test]
+    fn test_ordering() {
+        let id = Uuid::new_v4();
+        let timestamp1 = Utc::now();
+        let timestamp2 = timestamp1 + chrono::Duration::seconds(1);
+        let location = Location::new("some location".into());
+        let reading = Reading::BME280(BME280::new(22.625, 101325.0, 35.0));
+        let record1 = Record::new(id, timestamp1, location.clone(), reading.clone());
+        let record2 = Record::new(id, timestamp2, location, reading);
+        assert!(record1 < record2);
     }
 }

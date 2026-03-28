@@ -110,6 +110,12 @@ pub fn crc8(bytes: &[u8]) -> u8 {
 mod tests {
     use super::*;
 
+    fn get_reading() -> SCD41 {
+        let sensor_id = 0x1;
+        let raw_reading = [0x01, 0xf4, 0x33, 0x66, 0x67, 0xa2, 0x5e, 0xb9, 0x3c];
+        SCD41::try_from_raw(sensor_id, &raw_reading).unwrap()
+    }
+
     #[test]
     fn test_display() {
         // Testing example from the official SCD41 datasheet
@@ -182,5 +188,74 @@ mod tests {
         let data = 0xbeefu16.to_be_bytes();
         let expected = 0x92u8;
         assert_eq!(crc8(&data), expected);
+    }
+
+    #[test]
+    fn test_reading_display() {
+        let reading = SCD41::new(0u64, 0u16, 0u16, 0u16);
+        let expected = "SCD41: CO2: 0 ppm, temperature: -45.0°C, relative humidity: 0.0%";
+        assert_eq!(format!("{}", reading), format!("{}", expected));
+    }
+
+    #[test]
+    fn test_try_from_raw() {
+        let expected = SCD41 {
+            sensor_id: 1,
+            co2: 0x01f4u16,
+            temperature: 0x6667u16,
+            humidity: 0x5eb9u16,
+        };
+
+        let sensor_id = 0x01;
+        let raw_reading = [0x01, 0xf4, 0x33, 0x66, 0x67, 0xa2, 0x5e, 0xb9, 0x3c];
+        let actual = SCD41::try_from_raw(sensor_id, &raw_reading).unwrap();
+
+        assert_eq!(expected, actual);
+        assert_eq!(actual.sensor_id(), 1);
+        assert_eq!(actual.co2(), 500);
+        assert_eq!(actual.temperature().floor(), 25.0);
+        assert_eq!(actual.humidity().floor(), 37.0);
+    }
+
+    #[test]
+    fn test_sensor_id_display() {
+        let sensor_id = 0x1;
+        let raw_reading = [0x01, 0xf4, 0x33, 0x66, 0x67, 0xa2, 0x5e, 0xb9, 0x3c];
+        let actual = SCD41::try_from_raw(sensor_id, &raw_reading).unwrap();
+
+        assert_eq!(actual.sensor_id_display(), "1");
+    }
+
+    #[test]
+    fn test_raw_co2() {
+        let reading = get_reading();
+        assert_eq!(reading.raw_co2(), 0x01f4u16);
+    }
+
+    #[test]
+    fn test_raw_temperature() {
+        let reading = get_reading();
+        assert_eq!(reading.raw_temperature(), 0x6667u16);
+    }
+
+    #[test]
+    fn test_raw_humidity() {
+        let reading = get_reading();
+        assert_eq!(reading.raw_humidity(), 0x5eb9u16);
+    }
+
+    #[test]
+    fn test_parse_word_working() {
+        let raw_reading = [0x01, 0xf4, 0x33];
+        let expected = parse_word(raw_reading).unwrap();
+        let actual = 500u16;
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_parse_word_failing() {
+        let raw_reading = [0x01, 0xf4, 0x34];
+        let _ = parse_word(raw_reading).unwrap();
     }
 }
